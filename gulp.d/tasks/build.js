@@ -38,7 +38,7 @@ module.exports = (src, dest, preview) => () => {
       {
         filter: (asset) => new RegExp('^[~][^/]*(?:font|typeface)[^/]*/.*/files/.+[.](?:ttf|woff2?)$').test(asset.url),
         url: (asset) => {
-          const relpath = asset.pathname.substr(1)
+          const relpath = asset.pathname.slice(1)
           const abspath = require.resolve(relpath)
           const basename = ospath.basename(abspath)
           const destpath = ospath.join(dest, 'font', basename)
@@ -62,13 +62,13 @@ module.exports = (src, dest, preview) => () => {
     vfs
       .src('js/+([0-9])-*.js', { ...opts, read: false, sourcemaps })
       .pipe(bundle(opts))
-      .pipe(uglify({ output: { comments: /^! / } }))
+      .pipe(uglify({ ie: true, module: false, output: { comments: /^! / } }))
       // NOTE concat already uses stat from newest combined file
       .pipe(concat('js/site.js')),
     vfs
-      .src('js/vendor/*([^.])?(.bundle).js', { ...opts, read: false })
+      .src('js/vendor/+([^.])?(.bundle).js', { ...opts, read: false })
       .pipe(bundle(opts))
-      .pipe(uglify({ output: { comments: /^! / } })),
+      .pipe(uglify({ ie: true, module: false, output: { comments: /^! / } })),
     vfs
       .src('js/vendor/*.min.js', opts)
       .pipe(map((file, enc, next) => next(null, Object.assign(file, { extname: '' }, { extname: '.js' })))),
